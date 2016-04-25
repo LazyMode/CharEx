@@ -1,8 +1,13 @@
 ﻿using System.Globalization;
 
+#if EXPOSE_EVERYTHING || EXPOSE_CHAREX
+public
+#endif
 static partial class CharEx
 {
 #pragma warning disable 1591
+
+    public const int AsciiCaseGap = 'a' - 'A'; // 0x61 - 0x41 = 0x20
 
     #region IS
 
@@ -12,6 +17,16 @@ static partial class CharEx
         => char.IsDigit(c);
     public static bool IsLetter(this char c)
         => char.IsLetter(c);
+
+    public static bool IsAsciiUpper(this char c)
+        => (c >= 'A' && c <= 'Z');
+    public static bool IsAsciiLower(this char c)
+        => (c >= 'a' && c <= 'z');
+
+    public static bool IsNotAsciiUpper(this char c)
+        => (c < 'A' || c > 'Z');
+    public static bool IsNotAsciiLower(this char c)
+        => (c < 'a' || c > 'z');
 
     public static bool IsUpper(this char c)
         => char.IsUpper(c);
@@ -58,6 +73,14 @@ static partial class CharEx
     public static char ToLowerInvariant(this char c)
         => char.ToLowerInvariant(c);
 
+    internal static char ToAsciiLowerNoCheck(this char c)
+        => (char)(c + AsciiCaseGap);
+    public static char ToLowerForAscii(this char c)
+    {
+        if (c.IsAsciiUpper())
+            return c.ToAsciiLowerNoCheck();
+        return c;
+    }
     #endregion
 
     #region ToUpper
@@ -69,5 +92,13 @@ static partial class CharEx
     public static char ToUpperInvariant(this char c)
         => char.ToUpperInvariant(c);
 
+    internal static char ToAsciiUpperNoCheck(this char c)
+        => (char)(c - AsciiCaseGap);
+    public static char ToUpperForAscii(this char c)
+    {
+        if (c.IsAsciiLower())
+            return c.ToAsciiUpperNoCheck();
+        return c;
+    }
     #endregion
 }
